@@ -97,7 +97,6 @@ class Mvc extends AbstractListenerAggregate {
     /**
      * It show default view if display_errors setting = 0.
      *
-     *
      * @return mixed
      */
     private function showDefaultViewWhenDisplayErrorSetttingIsDisabled() {
