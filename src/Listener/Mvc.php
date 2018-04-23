@@ -106,7 +106,7 @@ class Mvc extends AbstractListenerAggregate {
 
             $request = new Request();
             $isXmlHttpRequest = $request->isXmlHttpRequest();
-            if (($this->errorHandlerCustomConfig['display-settings']['force-display-json'] === true && isset($this->errorHandlerCustomConfig['display-settings']['force-display-json'])) ||
+            if ((isset($this->errorHandlerCustomConfig['display-settings']['force-display-json']) && $this->errorHandlerCustomConfig['display-settings']['force-display-json'] === true) ||
                     ($isXmlHttpRequest === true && isset($this->errorHandlerCustomConfig['display-settings']['ajax']['message']))
             ) {
                 $content = $this->errorHandlerCustomConfig['display-settings']['ajax']['message'];
