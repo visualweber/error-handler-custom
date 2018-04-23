@@ -17,8 +17,8 @@ use Zend\Text\Table;
 use Zend\View\Model\ViewModel;
 use Zend\View\Renderer\PhpRenderer;
 
-class Mvc extends AbstractListenerAggregate
-{
+class Mvc extends AbstractListenerAggregate {
+
     use ErrorHanlderCustomTrait;
 
     /**
@@ -27,13 +27,11 @@ class Mvc extends AbstractListenerAggregate
      * @param PhpRenderer $renderer
      */
     public function __construct(
-        array       $errorHandlerCustomConfig,
-        Logging     $logging,
-        PhpRenderer $renderer
+    array $errorHandlerCustomConfig, Logging $logging, PhpRenderer $renderer
     ) {
         $this->errorHandlerCustomConfig = $errorHandlerCustomConfig;
-        $this->logging               = $logging;
-        $this->renderer              = $renderer;
+        $this->logging = $logging;
+        $this->renderer = $renderer;
     }
 
     /**
@@ -42,9 +40,8 @@ class Mvc extends AbstractListenerAggregate
      *
      * @return void
      */
-    public function attach(EventManagerInterface $events, $priority = 1)
-    {
-        if (! $this->errorHandlerCustomConfig['enable']) {
+    public function attach(EventManagerInterface $events, $priority = 1) {
+        if (!$this->errorHandlerCustomConfig['enable']) {
             return;
         }
 
@@ -61,8 +58,7 @@ class Mvc extends AbstractListenerAggregate
      *
      * @return void
      */
-    public function phpError(Event $e)
-    {
+    public function phpError(Event $e) {
         \register_shutdown_function([$this, 'execOnShutdown']);
         \set_error_handler([$this, 'phpErrorHandler']);
     }
@@ -72,22 +68,21 @@ class Mvc extends AbstractListenerAggregate
      *
      * @return void
      */
-    public function exceptionError(Event $e)
-    {
+    public function exceptionError(Event $e) {
         $exception = $e->getParam('exception');
-        if (! $exception) {
+        if (!$exception) {
             return;
         }
 
         $exceptionClass = \get_class($exception);
         if (isset($this->errorHandlerCustomConfig['display-settings']['exclude-exceptions']) &&
-            \in_array($exceptionClass, $this->errorHandlerCustomConfig['display-settings']['exclude-exceptions'])) {
+                \in_array($exceptionClass, $this->errorHandlerCustomConfig['display-settings']['exclude-exceptions'])) {
             // rely on original mvc process
             return;
         }
 
         $this->logging->handleErrorException(
-            $exception
+                $exception
         );
 
         $displayErrors = $this->errorHandlerCustomConfig['display-settings']['display_errors'];
@@ -105,18 +100,17 @@ class Mvc extends AbstractListenerAggregate
      *
      * @return mixed
      */
-    private function showDefaultViewWhenDisplayErrorSetttingIsDisabled()
-    {
-        if (! Console::isConsole()) {
+    private function showDefaultViewWhenDisplayErrorSetttingIsDisabled() {
+        if (!Console::isConsole()) {
             $response = new HttpResponse();
             $response->setStatusCode(500);
 
-            $request          = new Request();
+            $request = new Request();
             $isXmlHttpRequest = $request->isXmlHttpRequest();
-            if ($isXmlHttpRequest === true &&
-                isset($this->errorHandlerCustomConfig['display-settings']['ajax']['message'])
+            if (($this->errorHandlerCustomConfig['display-settings']['force-display-json'] === true && isset($this->errorHandlerCustomConfig['display-settings']['force-display-json'])) ||
+                    ($isXmlHttpRequest === true && isset($this->errorHandlerCustomConfig['display-settings']['ajax']['message']))
             ) {
-                $content     = $this->errorHandlerCustomConfig['display-settings']['ajax']['message'];
+                $content = $this->errorHandlerCustomConfig['display-settings']['ajax']['message'];
                 $contentType = ((new JsonParser())->lint($content) === null) ? 'application/problem+json' : 'text/html';
 
                 $response->getHeaders()->addHeaderLine('Content-type', $contentType);
@@ -152,4 +146,5 @@ class Mvc extends AbstractListenerAggregate
         $response->setContent($table->render());
         $response->send();
     }
+
 }
