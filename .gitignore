@@ -5,3 +5,6 @@ coverage.json
 bin
 .php_cs.cache
 .vscode/
+/nbproject/private/
+nbproject/project.xml
+nbproject/project.properties
