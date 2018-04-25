@@ -84,14 +84,14 @@ class Mvc extends AbstractListenerAggregate {
         $this->logging->handleErrorException(
                 $exception
         );
-
+        
         $displayErrors = $this->errorHandlerCustomConfig['display-settings']['display_errors'];
         if ($displayErrors) {
             // rely on original mvc process
             return;
         }
 
-        $this->showDefaultViewWhenDisplayErrorSetttingIsDisabled();
+        $this->showDefaultViewWhenDisplayErrorSetttingIsDisabled($exception);
     }
 
     /**
@@ -99,7 +99,7 @@ class Mvc extends AbstractListenerAggregate {
      *
      * @return mixed
      */
-    private function showDefaultViewWhenDisplayErrorSetttingIsDisabled() {
+    private function showDefaultViewWhenDisplayErrorSetttingIsDisabled($exception = null) {
         if (!Console::isConsole()) {
             $response = new HttpResponse();
             $response->setStatusCode(500);
@@ -110,6 +110,12 @@ class Mvc extends AbstractListenerAggregate {
                     ($isXmlHttpRequest === true && isset($this->errorHandlerCustomConfig['display-settings']['ajax']['message']))
             ) {
                 $content = $this->errorHandlerCustomConfig['display-settings']['ajax']['message'];
+                if ($exception && ($code = $exception->getCode()) && ($msg=$exception->getMessage())):
+                    $contentJson = json_decode($content, true);
+                    $contentJson['code'] = $code;
+                    $contentJson['reason'] = 'File: '.$exception->getFile().' ('.$exception->getLine().')';
+                    $content = json_encode($contentJson);
+                endif;
                 $contentType = ((new JsonParser())->lint($content) === null) ? 'application/problem+json' : 'text/html';
 
                 $response->getHeaders()->addHeaderLine('Content-type', $contentType);
