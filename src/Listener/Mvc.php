@@ -102,7 +102,7 @@ class Mvc extends AbstractListenerAggregate {
     private function showDefaultViewWhenDisplayErrorSetttingIsDisabled($exception = null) {
         if (!Console::isConsole()) {
             $response = new HttpResponse();
-            $response->setStatusCode(200);
+            $response->setStatusCode(500);
 
             $request = new Request();
             $isXmlHttpRequest = $request->isXmlHttpRequest();
@@ -110,7 +110,7 @@ class Mvc extends AbstractListenerAggregate {
                     ($isXmlHttpRequest === true && isset($this->errorHandlerCustomConfig['display-settings']['ajax']['message']))
             ) {
                 $content = $this->errorHandlerCustomConfig['display-settings']['ajax']['message'];
-                if ($exception && method_exists($exception,'getCode') && ($code = $exception->getCode()) &&  method_exists($exception,'getMessage') &&($msg=$exception->getMessage())):
+                if ($exception && method_exists($exception,'getCode') && (($code = $exception->getCode() )> -1) &&  method_exists($exception,'getMessage') &&($msg=$exception->getMessage())):
                     $contentJson = json_decode($content, true);
                     $contentJson['title'] = $msg;
                     $contentJson['code'] = $code;
