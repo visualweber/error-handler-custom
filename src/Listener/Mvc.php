@@ -130,11 +130,12 @@ class Mvc extends AbstractListenerAggregate {
 
             $view = new ViewModel();
             $view->setTemplate($this->errorHandlerCustomConfig['display-settings']['template']['view']);
+            $view->setVariable('exception', $exception);
 
             $layout = new ViewModel();
             $layout->setTemplate($this->errorHandlerCustomConfig['display-settings']['template']['layout']);
             $layout->setVariable('content', $this->renderer->render($view));
-
+            
             $response->getHeaders()->addHeaderLine('Content-type', 'text/html');
             $response->setContent($this->renderer->render($layout));
 
